@@ -5,25 +5,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
 import user.bean.UserUploadDTO;
+import user.service.UserUploadService;
 
 @CrossOrigin
 @RestController
 @RequestMapping(path="user")
 public class UserUploadController {
+	@Autowired
+	private UserUploadService userUploadService;
 	
 	@PostMapping(path="upload" , produces ="application/json;charset=UTF-8")
-	public void upload( @ModelAttribute UserUploadDTO userUploadDTO,
-						@RequestParam("img[]") List<MultipartFile> list,
+	public void upload( @RequestPart("userUploadDTO") UserUploadDTO userUploadDTO,
+						@RequestPart("img") List<MultipartFile> list,
 						HttpSession session) {
 		System.out.println("~~~~~~~~~~");
 		
@@ -63,6 +67,14 @@ public class UserUploadController {
 			
 		}//for
 		System.out.println(userImageList);
+		
+		//DB
+		userUploadService.upload(userImageList);
 	}
 	
+	@GetMapping(path="uploadList")
+	public List<UserUploadDTO>  uploadList(){
+		return userUploadService.uploadList();
+	}
+
 }

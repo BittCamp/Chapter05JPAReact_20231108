@@ -2,17 +2,18 @@ package user.bean;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 @Entity
 @Table(name = "userimage")
-@Getter
-@Setter
+@Data
 public class UserUploadDTO {
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY) // MySQL의 AUTO-INCREMENT를 사용하여 자동의 시퀀스가 적용되도록 한다.
 	@Column(name="seq")
 	private int seq;
 	

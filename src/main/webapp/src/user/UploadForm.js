@@ -1,6 +1,6 @@
-import React, { useRef, useState,axios } from 'react';
-import { Link } from 'react-router-dom';
-
+import axios from 'axios';
+import React, { useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from '../css/UploadForm.module.css';
 import mainImg from '../image/망상토끼.gif';
 import cameraImg from '../image/camera.png'; 
@@ -15,13 +15,13 @@ const UploadForm = () => {
         imageOriginalName: ''
 
     })  
-        const { imageName, imageContent ,imageFileName , imageOriginalName } = userUploadDTO
+    const { imageName, imageContent ,imageFileName , imageOriginalName } = userUploadDTO
 
     const [imgList, setImgList] = useState([])
-    const [file, setFile] = useState('')
-    const [showImgSrc, setShowImgSrc] = useState('')
-    
+    const [files, setFiles] = useState([])
 
+    const navigate = useNavigate()
+    
     const onInput = (e) =>{
         const { name, value } = e.target
         
@@ -36,33 +36,41 @@ const UploadForm = () => {
         imgRef.current.click()
     }
 
-    const onImgInput = (e) => {
-        const files = Array.from(e.target.files)//파일을 배열에 담는다.
+    const onImgInput = (e) => {  //이미지를 선택하면 실행되는 함수
+        const imgFiles = Array.from(e.target.files)//파일을 배열에 담는다.
         var imgArray = [] //임시배열의 변수를 잡아서
 
-        files.map(item => {
+        imgFiles.map(item => {
             const objectUrl = URL.createObjectURL(item)
             imgArray.push(objectUrl)
         }) //map 돌아가는거 안에 차곡차곡 담아라.
 
-        setImgList(imgArray) 
+        setImgList(imgArray) //카메라 아이콘을 누르면 이미지 미리보기 용도
+        setFiles(e.target.files) //formData에 넣어서 서버로(스프링 부트) 보내기 용도
     }
 
     const onUploadSubmit = (e) => {
         e.preventDefault()
 
         var formData = new FormData()
-        formData.append('userUploadDTO', userUploadDTO)
-        formData.append('img', imgList)
+        formData.append('userUploadDTO', new Blob([JSON.stringify(userUploadDTO)], {type: 'application/json'}))
+        // for(var i=0; i<files.length; i++) {
+        //     formData.append('img', files[i])
+        // }
+        Object.values(files).map((item,index) => {
+            formData.append('img', item)
+        })
 
         axios.post('/user/upload', formData,{
             headers: {
                 'Content-Type' : 'multipart/form-data'
             }
         }) 
-        .then(alert('이미지 업로드 완료'))
+        .then(res=>{
+            alert('이미지 업로드 완료')
+            navigate('/user/uploadList')
+        })
         .catch(error=> console.log(error)) 
-
     }
 
     const onReset = (e) => {
@@ -76,22 +84,9 @@ const UploadForm = () => {
         })
 
         setImgList([])
-        setShowImgSrc('')
         imgRef.current.value = ''
     }
 
-    const readURL = (input) => {
-        var reader = new FileReader();
-        reader.readAsDataURL(input.files[0])
-
-        reader.onload = () => {
-            console.log(input.files[0])
-            setShowImgSrc(reader.result)
-            setFile(input.files[0])
-
-        }
-
-    }
 
     return (
         <div>

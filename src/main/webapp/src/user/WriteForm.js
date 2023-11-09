@@ -76,7 +76,7 @@ const WriteForm = () => {
             axios.post('/user/write', null, { params: userDTO })
                 .then(
                     alert('회원가입을 축하합니다.'),
-                    navigate('/user/list')
+                    navigate('/user/list/0')
                 ).catch(error => console.log(error))
         }
     }
